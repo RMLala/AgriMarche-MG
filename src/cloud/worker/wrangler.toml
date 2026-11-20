@@ -1,0 +1,21 @@
+name = "agrimarche-cloud-api"
+main = "index.mjs"
+compatibility_date = "2026-11-18"
+workers_dev = false
+
+[vars]
+APP_ID = "agrimarche-mg"
+ALLOWED_ORIGINS = "https://APP-DOMAIN-TO-SET"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "agrimarche-prod"
+database_id = "SET_AFTER_D1_CREATION"
+migrations_dir = "../migrations"
+
+# Bind to the private AppForge License Authority Worker/service. It verifies
+# MVola validation, active entitlement, allowed device, expiry, revocation and quotas.
+[[services]]
+binding = "LICENSE_AUTHORITY"
+service = "appforge-license-authority"
+env = "production"

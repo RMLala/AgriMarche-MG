@@ -1,0 +1,6 @@
+{
+  "name": "agrimarche-cloud-api",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test tests/*.test.mjs ../client/*.test.mjs" }
+}

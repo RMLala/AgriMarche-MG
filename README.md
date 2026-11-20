@@ -1,45 +1,37 @@
-# RMLala Android Template
+# AgriMarché MG — accès Cloud AppForge V3
 
-Modèle public de démarrage pour les applications Android de **RMLala**.
+Cette reprise conserve le cahier des charges et le prototype existants et ajoute un premier socle Cloud lié à la licence, sans compte Cloud client et sans PWA.
 
-## Fonctionnement
+## État
 
-- Android Gradle Plugin **8.7.3**, Gradle **8.9**, JDK 17.
-- Deux variantes : **api23** (Android 6+) et **api29** (Android 10+).
-- Quatre artefacts standards : **Debug API23**, **Debug API29**, **Release API23**, **Release API29**.
-- Les deux Release utilisent les secrets de signature de l'organisation, jamais le keystore dans Git.
-- Les PR compilent les deux Debug (API23 et API29) : **aucun secret de signature n'est exposé dans les PR**.
-- Les Release signées sont compilées sur `main` ou sur lancement manuel `workflow_dispatch` ; limiter les autorisations de déclenchement.
-- Pas de PWA.
+- `src/cloud/worker/`: Worker Cloudflare pour la vérification de licence, l'émission/renouvellement de jetons courts, l'autorisation à chaque opération et les routes de synchronisation.
+- `src/cloud/migrations/0001_sync.sql`: tables synchronisées cloisonnées par périmètre opaque de licence, journal d'opérations et changements.
+- `src/cloud/client/`: client de session sans compte, file d'attente hors ligne, conservation des conflits et stockage IndexedDB chiffré par une clé fournie par la couche PIN/stockage protégé de l'application.
+- `AgriMarche_MG_Prototype_V1.html`: prototype existant ajusté pour afficher un état Cloud honnête et une rubrique Réglages sans formulaire de compte Cloud.
 
-## Secrets attendus
+## Contrat AppForge requis
 
-`KEYSTORE_BASE64`, `KEY_ALIAS`, `KEYSTORE_PASSWORD`, `KEY_PASSWORD`.
+Le binding privé `LICENSE_AUTHORITY` doit implémenter :
 
-**Vérifier la correspondance avec les noms réels des secrets de l'organisation** ; ne jamais ajouter leurs valeurs au code source.
+- `POST /internal/v1/cloud/verify`: vérifier l'attestation de licence après validation MVola, l'appareil, le droit Cloud, les quotas, l'état et l'expiration; répondre avec `active`, `cloud_allowed`, `device_allowed`, `license_scope` opaque, `expires_at`, `cloud_quota`.
+- `POST /internal/v1/cloud/authorize`: revalider activation, appareil, révocation, quotas et accès du scope pour chaque appel; répondre avec `allowed`, `active`, `cloud_allowed`, `device_allowed`, `quota_remaining`.
 
-## Personnalisation d'une nouvelle application
+Aucune de ces opérations n'est un compte client Cloud. Le client obtient l'attestation via le bridge AppForge déjà activé (`getCloudAssertion`) et un identifiant d'installation fourni par la plateforme (`getDeviceId`). L'interface n'offre pas d'e-mail, mot de passe, compte ou organisation Cloud.
 
-1. Créer un dépôt public depuis ce modèle après avoir coché **Settings → General → Template repository** dans GitHub.
-2. Adapter le `namespace`, l'`applicationId`, le package Java, le nom, les icônes et les sources Android.
-3. Conserver le code existant si l'application existe déjà : ce modèle sert de point de départ, pas de remplacement automatique.
-4. Développer sur une branche unique, ouvrir une PR, contrôler le build et fusionner uniquement après validation explicite.
-5. Conserver `versionName` entre Debug et Release ; incrémenter `releaseVersionCode` uniquement pour une Release réellement distribuée.
-6. Ne jamais mettre le fichier keystore, les mots de passe ou les fichiers `local.properties` dans le dépôt.
+## Secrets et configuration
 
-## Standard de livraison pour tous les dépôts
+- Configurer `CLOUD_TOKEN_SIGNING_KEY` comme secret Cloudflare Worker (jamais dans `[vars]`, HTML, Android ou GitHub).
+- Créer D1 et remplacer `database_id` dans `wrangler.toml`; renseigner l'origine autorisée réelle dans `ALLOWED_ORIGINS`.
+- Raccorder le binding Worker privé `LICENSE_AUTHORITY` après validation de son nom et de son schéma par le propriétaire AppForge.
+- Ne pas déployer tant que ces dépendances et la politique CORS ne sont pas vérifiées.
+- Le jeton reste en mémoire dans le client web; il n'est pas stocké dans IndexedDB. Les opérations locales nécessitent une clé de chiffrement fournie par l'application après déverrouillage PIN.
 
-- Les Pull Requests vers `main` doivent déclencher automatiquement les tests et les deux builds Debug.
-- Sur `main` ou déclenchement manuel autorisé, compiler les deux Release signées et vérifier les quatre APK.
-- Ne pas exposer les secrets aux Pull Requests non fiables ; éviter `pull_request_target` pour les builds de code proposé.
-- Adapter les workflows des projets Capacitor/HTML à leur structure propre : ne pas remplacer les sources métier par ce squelette.
-- Vérifier que les noms des secrets correspondent aux secrets de l'organisation ; aucune valeur de secret ne doit être publiée.
-- Une fusion nécessite une validation explicite, après tests, artefacts et vérification fonctionnelle.
+## Vérifications locales
 
-## Portée de l'automatisation
+Depuis `src/cloud/worker/` :
 
-Le dépôt fournit un squelette Gradle et un workflow CI. Il ne crée pas automatiquement les nouveaux dépôts. Cette étape exige une automatisation distincte avec des droits d'organisation.
+```sh
+npm test
+```
 
-## Sécurité
-
-Les dépôts publics utilisant des secrets d'organisation ont besoin de contrôles d'écriture et de PR. Une modification malveillante d'un workflow peut exposer les secrets de signature lors d'un build autorisé. Une clé commune compromettrait potentiellement toutes les applications si elle était divulguée.
+La suite courante utilise un faux binding d'autorité et un faux D1 en mémoire. Elle prouve des règles logicielles locales, pas un déploiement Cloudflare, une validation de paiement MVola réelle, ni une recette sur deux appareils physiques.
