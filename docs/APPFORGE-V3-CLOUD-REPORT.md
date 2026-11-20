@@ -25,6 +25,7 @@
 - `npm test` dans `src/cloud/worker/` : **22 tests réussis, 0 échec**. Couverture des jetons, activation simulée, renouvellement, licence expirée/révoquée, appareil non autorisé, synchronisation de deux appareils autorisés, isolation entre licences, idempotence, conflit, quota, mode hors ligne et reprise de file.
 - `node --check` sur Worker, client Cloud et outbox : réussi.
 - `0001_sync.sql` appliqué avec SQLite local en mémoire : syntaxe et création des trois tables vérifiées.
+- GitHub Actions sur la PR #1 : audit AppForge V3 **success**; build Debug API23/API29 **success**; deux artefacts Debug présents. Le job Release est sauté sur une PR conformément au workflow.
 
 Ces tests utilisent un binding d'autorité et un faux D1. Ils ne constituent pas les 10 tests d'intégration production demandés; ils ne valident aucun paiement MVola réel ni un Worker/D1 Cloudflare déployé.
 
@@ -35,7 +36,7 @@ Ces tests utilisent un binding d'autorité et un faux D1. Ils ne constituent pas
 - Le prototype n'a pas de bridge licence AppForge, de stockage PIN réel, de données métier persistantes ni de client Android. Le module web exige `AppForgeLicenseBridge` et l'adaptateur local chiffré pour démarrer.
 - La clé de chiffrement PIN n'est pas implémentée dans ce prototype; aucun jeton ne doit être conservé dans IndexedDB/localStorage.
 - Aucun APK, test physique, synchronisation entre deux vrais appareils, backup/restore ou certification fonctionnelle V3 n'a été exécuté.
-- La création du dépôt a été réalisée par le workflow du modèle, qui exige `RMLALA_REPO_CREATOR_TOKEN`. La branche de travail dédiée est créée; le commit, le push, la PR et le workflow AppForge du projet restent à vérifier au moment du rapport.
+- Le dépôt a été créé par le workflow du modèle (secret organisation requis). Sources poussées sur `work/agri-cloud-license-v3-2026-11-20`, commit `50ddae4faaa838fdd2bb1f7fb66538384a027d06`; PR #1 ouverte vers `main`, non fusionnée. Les workflows PR vérifiés sont verts pour l'audit V3 et les builds Debug. Les Release signées API23/API29 n'ont pas été exécutées; leur job est ignoré sur PR.
 
 ## Anomalies corrigées
 
@@ -44,10 +45,10 @@ Ces tests utilisent un binding d'autorité et un faux D1. Ils ne constituent pas
 
 ## Conclusion et statut pour le pilotage global
 
-**Socle local développé et testé en simulation; intégration Cloud réelle en attente des dépendances AppForge et Cloudflare.** Ne pas qualifier AgriMarché de « Cloud connecté », de production ou conforme V3. Le dépôt public est créé; le push et la PR doivent encore être vérifiés. Aucun APK ni déploiement n'a eu lieu.
+**Socle développé, poussé et soumis en PR; contrôles locaux et CI réussis, intégration Cloud réelle toujours en attente des dépendances AppForge et Cloudflare.** Ne pas qualifier AgriMarché de « Cloud connecté », de production ou pleinement conforme V3. Les builds Debug API23/API29 existent comme artefacts CI, pas comme livraison testée; aucun Release signé ni déploiement Cloud n'a eu lieu.
 
 ### Trois prochaines actions
 
-1. Pousser les sources sur la branche dédiée et ouvrir une PR vers `main`, puis vérifier les workflows générés.
+1. Faire réviser la PR #1 et valider l'architecture avant fusion.
 2. Faire valider le contrat Worker `LICENSE_AUTHORITY`, les données de révocation/quota et la remise de l'attestation de licence MVola.
 3. Raccorder le bridge AppForge, le stockage PIN/Android sécurisé et D1 réel, puis lancer les 10 scénarios d'intégration sur Worker et deux appareils.
