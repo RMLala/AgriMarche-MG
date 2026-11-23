@@ -35,8 +35,8 @@ Ces tests utilisent un binding d'autorité et un faux D1. Ils ne constituent pas
 - D1, Worker de production, secret de signature, origine autorisée et quotas réels ne sont pas configurés. Aucun déploiement effectué.
 - Le prototype n'a pas de bridge licence AppForge, de stockage PIN réel, de données métier persistantes ni de client Android. Le module web exige `AppForgeLicenseBridge` et l'adaptateur local chiffré pour démarrer.
 - La clé de chiffrement PIN n'est pas implémentée dans ce prototype; aucun jeton ne doit être conservé dans IndexedDB/localStorage.
-- Aucun APK, test physique, synchronisation entre deux vrais appareils, backup/restore ou certification fonctionnelle V3 n'a été exécuté.
-- Le dépôt a été créé par le workflow du modèle (secret organisation requis). Sources poussées sur `work/agri-cloud-license-v3-2026-11-20`, commit `50ddae4faaa838fdd2bb1f7fb66538384a027d06`; PR #1 ouverte vers `main`, non fusionnée. Les workflows PR vérifiés sont verts pour l'audit V3 et les builds Debug. Les Release signées API23/API29 n'ont pas été exécutées; leur job est ignoré sur PR.
+- La CI a produit deux APK Debug (API23/API29) sur le wrapper Android du dépôt; aucun Release signé, test physique, synchronisation entre deux vrais appareils, backup/restore ou certification fonctionnelle V3 n'a été exécuté.
+- Le dépôt a été créé par le workflow du modèle (secret organisation requis). La PR #1 a été fusionnée dans `main` le 20/11/2026. Les workflows GitHub ont réussi pour l'audit V3 et les builds Debug API23/API29; les deux artefacts Debug sont disponibles dans le run [44805191529](https://github.com/RMLala/AgriMarche-MG/actions/runs/44805191529). Les Release signées API23/API29 n'ont pas été exécutées : leur job est ignoré sur les PR. La fusion n'a effectué aucun déploiement Worker/D1 de production.
 
 ## Anomalies corrigées
 
@@ -45,7 +45,7 @@ Ces tests utilisent un binding d'autorité et un faux D1. Ils ne constituent pas
 
 ## Conclusion et statut pour le pilotage global
 
-**Socle développé, poussé et soumis en PR; contrôles locaux et CI réussis, intégration Cloud réelle toujours en attente des dépendances AppForge et Cloudflare.** Ne pas qualifier AgriMarché de « Cloud connecté », de production ou pleinement conforme V3. Les builds Debug API23/API29 existent comme artefacts CI, pas comme livraison testée; aucun Release signé ni déploiement Cloud n'a eu lieu.
+**Socle de code et tests fusionnés dans `main` après la PR #1; contrôles locaux et CI réussis, intégration Cloud réelle toujours en attente des dépendances AppForge et Cloudflare.** Ne pas qualifier AgriMarché de « Cloud connecté », de production ou pleinement conforme V3. Les builds Debug API23/API29 existent comme artefacts CI, pas comme livraison testée; aucun Release signé ni déploiement Cloud n'a eu lieu.
 
 ### Trois prochaines actions
 
